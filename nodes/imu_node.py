@@ -34,7 +34,7 @@ import math
 import sys
 
 #from time import time
-from sensor_msgs.msg import Imu
+from sensor_msgs.msg import Imu, MagneticField
 from tf.transformations import quaternion_from_euler
 from dynamic_reconfigure.server import Server
 from razor_imu_9dof.cfg import imuConfig
@@ -53,13 +53,21 @@ def reconfig_callback(config, level):
     return config
 
 rospy.init_node("razor_node")
-#We only care about the most recent measurement, i.e. queue_size=1
-pub = rospy.Publisher('imu', Imu, queue_size=1)
+
+# IMU msg Publishers
+#
+# We only care about the most recent measurement, i.e. queue_size=1
+#
+pub_imu = rospy.Publisher('imu', Imu, queue_size=1)
+pub_mag = rospy.Publisher('mag', MagneticField, queue_size=1)
+
 srv = Server(imuConfig, reconfig_callback)  # define dynamic_reconfigure callback
 diag_pub = rospy.Publisher('diagnostics', DiagnosticArray, queue_size=1)
 diag_pub_time = rospy.get_time();
 
+# Message Objects
 imuMsg = Imu()
+magMsg = MagneticField()
 
 # Orientation covariance estimation:
 # Observed orientation noise: 0.3 degrees in x, y, 0.6 degrees in z
@@ -97,11 +105,22 @@ imuMsg.linear_acceleration_covariance = [
 0 , 0 , 0.04
 ]
 
+# Covariance doesn't seem to be used in the complementary
+# filter that we use next. Hence, setting it to 0 seems
+# to be right as it should not matter.
+magMsg.magnetic_field_covariance = [
+0 , 0 , 0,
+0 , 0, 0,
+0 , 0 , 0
+]
+
+# Physical address of the RAZOR board
+
 default_port='/dev/ttyUSB0'
 port = rospy.get_param('~port', default_port)
 
 #read calibration parameters
-port = rospy.get_param('~port', default_port)
+# port = rospy.get_param('~port', default_port)
 
 #accelerometer
 accel_x_min = rospy.get_param('~accel_x_min', -250.0)
@@ -248,6 +267,14 @@ while not rospy.is_shutdown():
         imuMsg.angular_velocity.y = -float(words[7])
         #in AHRS firmware z axis points down, in ROS z axis points up (see REP 103) 
         imuMsg.angular_velocity.z = -float(words[8])
+        
+        magMsg.magnetic_field.x = float(words[9])
+        magMsg.magnetic_field.y = -float(words[10])
+        magMsg.magnetic_field.z = -float(words[11])
+        
+	#rospy.loginfo(imuMsg.linear_acceleration);
+	
+	#rospy.loginfo(math.sqrt(imuMsg.linear_acceleration.x * imuMsg.linear_acceleration.x + imuMsg.linear_acceleration.y * imuMsg.linear_acceleration.y + imuMsg.linear_acceleration.z * imuMsg.linear_acceleration.z));
 
     q = quaternion_from_euler(roll,pitch,yaw)
     imuMsg.orientation.x = q[0]
@@ -258,7 +285,10 @@ while not rospy.is_shutdown():
     imuMsg.header.frame_id = 'base_imu_link'
     imuMsg.header.seq = seq
     seq = seq + 1
-    pub.publish(imuMsg)
+    pub_imu.publish(imuMsg)
+    
+    magMsg.header = imuMsg.header
+    pub_mag.publish(magMsg)
 
     if (diag_pub_time < rospy.get_time()) :
         diag_pub_time += 1
