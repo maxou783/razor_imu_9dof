@@ -135,9 +135,6 @@
                 One frame consist of three 3x3 float values = 36 bytes. Order is: acc x/y/z, mag x/y/z, gyr x/y/z.
       "#osbb" - Output BOTH raw and calibrated SENSOR data of all 9 axes in BINARY format.
                 One frame consist of 2x36 = 72 bytes - like #osrb and #oscb combined (first RAW, then CALIBRATED).
-                
-	  // Sensor data output for Kalibr
-	  "#ok"
       
       // Error message output        
       "#oe0" - Disable ERROR message output.
@@ -191,10 +188,6 @@
 // Sensor data output interval in milliseconds
 // This may not work, if faster than 20ms (=50Hz)
 // Code is tuned for 20ms, so better leave it like that
-//
-// !!!!!!!!!!!!!!!!!!!!!!!!!!
-// Code now set for 200hz max
-// !!!!!!!!!!!!!!!!!!!!!!!!!!
 #define OUTPUT__DATA_INTERVAL 5  // in milliseconds
 
 // Output mode definitions (do not change)
@@ -204,7 +197,6 @@
 #define OUTPUT__MODE_SENSORS_RAW 3 // Outputs raw (uncalibrated) sensor values for all 9 axes
 #define OUTPUT__MODE_SENSORS_BOTH 4 // Outputs calibrated AND raw sensor values for all 9 axes
 #define OUTPUT__MODE_ANGLES_AG_SENSORS 5 // Outputs yaw/pitch/roll in degrees + linear accel + rot. vel
-#define OUTPUT__MODE_SENSORS_4_KALIBR 6 // Outputs linear acceleration + rotation velocity to be used in Kalibr
 // Output format definitions (do not change)
 #define OUTPUT__FORMAT_TEXT 0 // Outputs data as text
 #define OUTPUT__FORMAT_BINARY 1 // Outputs data as binary float
@@ -593,10 +585,6 @@ void loop()
           else if (format_param == 'b') // Output values in _b_inary format
             output_format = OUTPUT__FORMAT_BINARY;
         }
-        else if (output_param == 'k') // Output values for Kalibr
-		{
-			output_mode = OUTPUT__MODE_SENSORS_4_KALIBR;
-		}
         else if (output_param == '0') // Disable continuous streaming output
         {
           turn_output_stream_off();
@@ -840,10 +828,6 @@ void loop()
       
       if (output_stream_on || output_single_on) output_both_angles_and_sensors_text();
     }
-    else if (output_mode == OUTPUT__MODE_SENSORS_4_KALIBR) // Output accel + rot. vel for Kalibr
-	{
-		if (output_stream_on || output_single_on) output_sensors_for_kalibr();
-	}
     else  // Output sensor values
     {      
       if (output_stream_on || output_single_on) output_sensors();
