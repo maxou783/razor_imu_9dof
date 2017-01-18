@@ -35,10 +35,10 @@ void Accel_Init()
   Wire.endTransmission();
   delay(5);
   
-  // Because our main loop runs at 50Hz we adjust the output data rate to 50Hz (25Hz bandwidth)
+  // We adjust the output data rate to the main loop frequency in Hz (frequency/2 Hz bandwidth)
   Wire.beginTransmission(ACCEL_ADDRESS);
   WIRE_SEND(0x2C);  // Rate
-  WIRE_SEND(0x09);  // Set to 50Hz, normal operation
+  WIRE_SEND(0x0B);  // Set to 100Hz (modified Operation) / Set 0x09 for 50Hz, normal operation / Set 0x0B for 200Hz
   Wire.endTransmission();
   delay(5);
 }
@@ -87,7 +87,7 @@ void Magn_Init()
 
   Wire.beginTransmission(MAGN_ADDRESS);
   WIRE_SEND(0x00);
-  WIRE_SEND(0b00011000);  // Set 50Hz
+  WIRE_SEND(0b00011000);  // Set 50Hz (In reality it sets it to 75Hz => Maximum in Continuous-Measurement Mode)
   Wire.endTransmission();
   delay(5);
 }
@@ -162,10 +162,10 @@ void Gyro_Init()
   Wire.endTransmission();
   delay(5);
   
-  // Set sample rato to 50Hz
+  // Set sample rato to 250Hz
   Wire.beginTransmission(GYRO_ADDRESS);
   WIRE_SEND(0x15);
-  WIRE_SEND(0x0A);  //  SMPLRT_DIV = 10 (50Hz)
+  WIRE_SEND(0x03);  // 250 Hz || 0xXX -> F(Hz) = 2kHz/((XX)dec +1) // SMPLRT_DIV = 10 <=> 0x0A (50Hz)
   Wire.endTransmission();
   delay(5);
 
