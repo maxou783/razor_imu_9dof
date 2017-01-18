@@ -842,6 +842,9 @@ void loop()
     }
     else if (output_mode == OUTPUT__MODE_SENSORS_4_KALIBR) // Output accel + rot. vel for Kalibr
 	{
+		// Apply sensor calibration
+		compensate_sensor_errors();
+
 		if (output_stream_on || output_single_on) output_sensors_for_kalibr();
 	}
     else  // Output sensor values

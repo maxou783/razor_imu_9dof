@@ -148,11 +148,13 @@ void output_sensors()
 
 void output_sensors_for_kalibr()
 {
-	Serial.print(Accel_Vector[0]); Serial.print(",");
-	Serial.print(Accel_Vector[1]); Serial.print(",");
-	Serial.print(Accel_Vector[2]); Serial.print(",");
+	// Linear Acc. (to be converted in m/s²)
+	Serial.print(accel[0]); Serial.print(",");
+	Serial.print(accel[1]); Serial.print(",");
+	Serial.print(accel[2]); Serial.print(",");
 	
-	Serial.print(Gyro_Vector[0]); Serial.print(",");
-	Serial.print(Gyro_Vector[1]); Serial.print(",");
-	Serial.print(Gyro_Vector[2]); Serial.println();
+	// Angular Velocity in rad/s
+	Serial.print(GYRO_SCALED_RAD(gyro[0])); Serial.print(",");
+	Serial.print(GYRO_SCALED_RAD(gyro[1])); Serial.print(",");
+	Serial.print(GYRO_SCALED_RAD(gyro[2])); Serial.println();
 }
