@@ -146,3 +146,13 @@ void output_sensors()
   }
 }
 
+void output_sensors_for_kalibr()
+{
+	Serial.print(Accel_Vector[0]); Serial.print(",");
+	Serial.print(Accel_Vector[1]); Serial.print(",");
+	Serial.print(Accel_Vector[2]); Serial.print(",");
+	
+	Serial.print(Gyro_Vector[0]); Serial.print(",");
+	Serial.print(Gyro_Vector[1]); Serial.print(",");
+	Serial.print(Gyro_Vector[2]); Serial.println();
+}
