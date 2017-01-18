@@ -180,7 +180,7 @@ ser.write('#o0' + chr(13))
 discard = ser.readlines() 
 
 #set output mode
-ser.write('#ox' + chr(13)) # To start display angle and sensor reading in text
+ser.write('#ok' + chr(13)) # To start display sensor reading for Kalibr in text
 
 rospy.loginfo("Writing calibration values to razor IMU board...")
 #set calibration values
@@ -239,10 +239,11 @@ rospy.loginfo("Publishing IMU data...")
 
 while not rospy.is_shutdown():
     line = ser.readline()
-    line = line.replace("#YPRAG=","")   # Delete "#YPRAG="
+    #line = line.replace("#YPRAG=","")   # Delete "#YPRAG="
     #f.write(line)                     # Write to the output log file
     words = string.split(line,",")    # Fields split
     if len(words) > 2:
+        '''
         #in AHRS firmware z axis points down, in ROS z axis points up (see REP 103)
         yaw_deg = -float(words[0])
         yaw_deg = yaw_deg + imu_yaw_calibration
@@ -254,41 +255,45 @@ while not rospy.is_shutdown():
         #in AHRS firmware y axis points right, in ROS y axis points left (see REP 103)
         pitch = -float(words[1])*degrees2rad
         roll = float(words[2])*degrees2rad
-
+		'''
+		
         # Publish message
         # AHRS firmware accelerations are negated
         # This means y and z are correct for ROS, but x needs reversing
-        imuMsg.linear_acceleration.x = -float(words[3]) * accel_factor
-        imuMsg.linear_acceleration.y = float(words[4]) * accel_factor
-        imuMsg.linear_acceleration.z = float(words[5]) * accel_factor
+        imuMsg.linear_acceleration.x = -float(words[0]) * accel_factor
+        imuMsg.linear_acceleration.y = float(words[1]) * accel_factor
+        imuMsg.linear_acceleration.z = float(words[2]) * accel_factor
 
-        imuMsg.angular_velocity.x = float(words[6])
+        imuMsg.angular_velocity.x = float(words[3])
         #in AHRS firmware y axis points right, in ROS y axis points left (see REP 103)
-        imuMsg.angular_velocity.y = -float(words[7])
+        imuMsg.angular_velocity.y = -float(words[4])
         #in AHRS firmware z axis points down, in ROS z axis points up (see REP 103) 
-        imuMsg.angular_velocity.z = -float(words[8])
+        imuMsg.angular_velocity.z = -float(words[5])
         
-        magMsg.magnetic_field.x = float(words[9])
-        magMsg.magnetic_field.y = -float(words[10])
-        magMsg.magnetic_field.z = -float(words[11])
+        #magMsg.magnetic_field.x = float(words[9])
+        #magMsg.magnetic_field.y = -float(words[10])
+        #magMsg.magnetic_field.z = -float(words[11])
         
 	#rospy.loginfo(imuMsg.linear_acceleration);
 	
 	#rospy.loginfo(math.sqrt(imuMsg.linear_acceleration.x * imuMsg.linear_acceleration.x + imuMsg.linear_acceleration.y * imuMsg.linear_acceleration.y + imuMsg.linear_acceleration.z * imuMsg.linear_acceleration.z));
-
+	
+	'''
     q = quaternion_from_euler(roll,pitch,yaw)
     imuMsg.orientation.x = q[0]
     imuMsg.orientation.y = q[1]
     imuMsg.orientation.z = q[2]
     imuMsg.orientation.w = q[3]
+    '''
+    
     imuMsg.header.stamp= rospy.Time.now()
     imuMsg.header.frame_id = 'base_imu_link'
     imuMsg.header.seq = seq
     seq = seq + 1
     pub_imu.publish(imuMsg)
     
-    magMsg.header = imuMsg.header
-    pub_mag.publish(magMsg)
+    #magMsg.header = imuMsg.header
+    #pub_mag.publish(magMsg)
 
     if (diag_pub_time < rospy.get_time()) :
         diag_pub_time += 1
