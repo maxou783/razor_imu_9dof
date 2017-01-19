@@ -49,7 +49,7 @@ import processing.opengl.*;
 import processing.serial.*;
 import java.io.*;
 
-final static int SERIAL_PORT_BAUD_RATE = 57600;
+final static int SERIAL_PORT_BAUD_RATE = 115200;
 
 final static int NUM_MAGN_SAMPLES = 10000;
 float magnetom[][] = new float[NUM_MAGN_SAMPLES][3];
@@ -91,7 +91,7 @@ void setup() {
   // Setup serial port I/O
   println("AVAILABLE SERIAL PORTS:");
   println(Serial.list());
-  String portName = "/dev/ttyUSB0"; // Serial.list()[SERIAL_PORT_NUM];
+  String portName = "/dev/ttyUSB1"; // Serial.list()[SERIAL_PORT_NUM];
   println();
   println("HAVE A LOOK AT THE LIST ABOVE AND SET THE RIGHT SERIAL PORT NUMBER IN THE CODE!");
   println("  -> Using port " + SERIAL_PORT_NUM + ": " + portName);
