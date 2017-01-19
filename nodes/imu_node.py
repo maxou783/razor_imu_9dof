@@ -256,7 +256,6 @@ while not rospy.is_shutdown():
         pitch = -float(words[1])*degrees2rad
         roll = float(words[2])*degrees2rad
 		'''
-		
         # Publish message
         # AHRS firmware accelerations are negated
         # This means y and z are correct for ROS, but x needs reversing
@@ -270,9 +269,9 @@ while not rospy.is_shutdown():
         #in AHRS firmware z axis points down, in ROS z axis points up (see REP 103) 
         imuMsg.angular_velocity.z = -float(words[5])
         
-        #magMsg.magnetic_field.x = float(words[9])
-        #magMsg.magnetic_field.y = -float(words[10])
-        #magMsg.magnetic_field.z = -float(words[11])
+        #magMsg.magnetic_field.x = float(words[6])
+        #magMsg.magnetic_field.y = -float(words[7])
+        #magMsg.magnetic_field.z = -float(words[8])
         
 	#rospy.loginfo(imuMsg.linear_acceleration);
 	
